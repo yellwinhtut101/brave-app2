@@ -55,7 +55,7 @@ exec java ${JAVA_OPTS} -cp 'classes:lib/*' \
 -Dbrave.localServiceName=${EXAMPLE_SERVICE} \
 -Dbrave.supportsJoin=${BRAVE_SUPPORTS_JOIN:-true} \
 -Dbrave.traceId128Bit=${BRAVE_TRACEID_128:-false} \
--Dzipkin.baseUrl=${ZIPKIN_BASEURL:-http://zipkin:9411/} \
+-Dzipkin.baseUrl=${ZIPKIN_BASEURL:-http://otel-collector.opentelemetry-operator-system.svc.cluster.local:9411/} \
 EOF
 
 # Allow override of the backend endpoint, for a multi-container pod.

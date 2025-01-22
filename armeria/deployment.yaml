@@ -1,0 +1,85 @@
+apiVersion: v1
+kind: Service
+metadata:
+  #namespace: opentelemetry-operator-system
+  name: brave-example-service
+  labels:
+    app: brave-example
+spec:
+  selector:
+    app: brave-example
+  ports:
+    - name: frontend
+      port: 8081
+      targetPort: 8081
+    - name: backend
+      port: 9000
+      targetPort: 9000
+  type: NodePort
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  #namespace: opentelemetry-operator-system
+  name: brave-example-deployment
+  labels:
+    app: brave-example
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: brave-example
+  template:
+    metadata:
+      labels:
+        app: brave-example
+    spec:
+      containers:
+        - name: brave-example
+          image: yellwinhtut/brave-example:v14  # Replace with your actual image
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8081
+              name: frontend
+            - containerPort: 9000
+              name: backend
+          resources:
+            requests:
+              memory: "512Mi"
+              cpu: "250m"
+            limits:
+              memory: "1Gi"
+              cpu: "500m"
+          livenessProbe:
+            tcpSocket:
+              port: 8081
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 5
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 1000
+            allowPrivilegeEscalation: false
+          env:
+            - name: JAVA_OPTS
+              value: "-Xms256m -Xmx512m"
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  #namespace: opentelemetry-operator-system
+  name: brave-example-hpa
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: brave-example-deployment
+  minReplicas: 1
+  maxReplicas: 5
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 80

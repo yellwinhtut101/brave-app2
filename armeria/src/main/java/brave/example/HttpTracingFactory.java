@@ -114,7 +114,7 @@ final class HttpTracingFactory {
       return new WebClientSender(WebClient.of(SessionProtocol.H2C, zipkin, postZipkinSpans));
     }
     String zipkinUri =
-        System.getProperty("zipkin.baseUrl", "http://127.0.0.1:9411") + postZipkinSpans;
+        System.getProperty("zipkin.baseUrl", "http://otel-collector:9411") + postZipkinSpans;
     LOGGER.info("Using zipkin URI: {}", zipkinUri);
     return new WebClientSender(WebClient.of(zipkinUri));
   }
